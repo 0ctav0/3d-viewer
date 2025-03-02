@@ -29,7 +29,7 @@ const options: { id: PrimitiveType, label: string }[] = [
 ]
 
 type Form = {
-  type: PrimitiveType,
+  type: {id:PrimitiveType},
   length: number,
   width: number,
   height: number,
@@ -43,7 +43,7 @@ export const App = () => {
 
   const { control, handleSubmit } = useForm<Form>({
     defaultValues: {
-      type: "box",
+      type: {id:"pyramid"},
       length: 1,
       width: 1,
       height: 1,
@@ -56,8 +56,9 @@ export const App = () => {
   }
 
   const addGroup = (v: Form) => {
+    console.log(v);
     const newElements: Primitive3D[] = Array(v.number).fill(0).map((_, i) =>
-      ({ type: v.type, name: `${v.type} ${i + 1}`, color: randomFromArr(COLORS), position: randomPosition(), size: new Vector3(v.width, v.height, v.length) }));
+      ({ type: v.type.id, name: `${v.type.id} ${i + 1}`, color: randomFromArr(COLORS), position: randomPosition(), size: new Vector3(v.width, v.height, v.length) }));
     setPrimitives((prev) => [...prev, ...newElements]);
     closeDialog();
   }
