@@ -6,14 +6,8 @@ import { ChangeHistory, Square } from '@mui/icons-material'
 import { Vector3 } from 'three'
 import { useForm } from 'react-hook-form'
 import { AutocompleteElement, TextFieldElement } from 'react-hook-form-mui'
-
-type Primitive3D = {
-  type: "box" | "pyramid",
-  name: string,
-  position: Vector3,
-  size: Vector3,
-  color: string,
-}
+import { COLORS, createMockPrimitives, Primitive, Primitive3D } from './components/Primitive'
+import { randomFromArr, randomPosition } from './utils/utils'
 
 const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   switch (type) {
@@ -22,22 +16,9 @@ const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   }
 }
 
-const BoxPrimitive = ({ item: { color, position, size } }: { item: Primitive3D }) => {
-  return <mesh position={position} scale={size}>
-    <boxGeometry/>
-    <meshStandardMaterial color={color} />
-  </mesh>
-}
+const DIRECTION_LIGHT_POS: [number,number,number] = [0,0,1];
 
-const COLORS = ["red", "yellow", "green", "blue", "black", "purple", "aqua"];
-const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
-const getRandomPosition = () => new Vector3(3 - Math.random() * 6, 3 - Math.random() * 6, -1);
-
-const mockData: Primitive3D[] = [
-  { type: "box", name: "Box 1", position: getRandomPosition(), size: new Vector3(1,1,1), color: "red" },
-  { type: "box", name: "Box 2", position: getRandomPosition(), size: new Vector3(1,1,1), color: "yellow" },
-  { type: "box", name: "Box 3", position: getRandomPosition(), size: new Vector3(1,1,1), color: "green" },
-]
+const mockData = createMockPrimitives(10);
 
 const getVector3Text = (v: Vector3) => `position: (${v.x.toFixed(1)}, ${v.y.toFixed(1)}, ${v.z.toFixed(1)})`;
 
@@ -65,16 +46,15 @@ export const App = () => {
       height: 1,
       number: 3,
     }
-  })
+  });
 
   const clearScene = () => {
     setPrimitives([]);
   }
 
   const addGroup = (v: Form) => {
-    console.log(v);
     const newElements: Primitive3D[] = Array(v.number).fill(0).map((_, i) =>
-      ({ type: v.type, name: `${v.type} ${i + 1}`, color: getRandomColor(), position: getRandomPosition(), size: new Vector3(v.width, v.height, v.length) }));
+      ({ type: v.type, name: `${v.type} ${i + 1}`, color: randomFromArr(COLORS), position: randomPosition(), size: new Vector3(v.width, v.height, v.length) }));
     setPrimitives((prev) => [...prev, ...newElements]);
     closeDialog();
   }
@@ -86,7 +66,7 @@ export const App = () => {
   return (
     <Stack direction="row" height={"100%"}>
       <Stack minWidth={300}>
-        <List sx={{overflow: "auto"}}>
+        <List sx={{ overflow: "auto" }}>
           {primitives.map((item, i) => (
             <ListItem key={i}>
               <ListItemButton>
@@ -103,9 +83,9 @@ export const App = () => {
       </Stack>
       <Canvas>
         <ambientLight intensity={0.1} />
-        <directionalLight color="white" position={[10, 30, 10]} />
+        <directionalLight color="white" position={DIRECTION_LIGHT_POS} />
         {primitives.map((item, i) => (
-          <BoxPrimitive key={i} item={item} />
+          <Primitive key={i} item={item} />
         ))}
       </Canvas>
       <Dialog
