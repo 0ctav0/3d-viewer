@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import './App.css'
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
-import { ChangeHistory, Square } from '@mui/icons-material'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
+import { ChangeHistory, CropFree, Square } from '@mui/icons-material'
 import { Vector3 } from 'three'
 import { useForm } from 'react-hook-form'
 import { AutocompleteElement, TextFieldElement } from 'react-hook-form-mui'
-import { COLORS, createMockPrimitives, Primitive, Primitive3D } from './components/Primitive'
+import { COLORS, createMockPrimitives, Primitive, Primitive3D, PrimitiveType } from './components/Primitive'
 import { randomFromArr, randomPosition } from './utils/utils'
+import { OrbitControls } from '@react-three/drei'
 
 const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   switch (type) {
@@ -16,19 +17,19 @@ const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   }
 }
 
-const DIRECTION_LIGHT_POS: [number,number,number] = [0,0,1];
+const DIRECTION_LIGHT_POS: [number, number, number] = [10, 100, 10];
 
 const mockData = createMockPrimitives(10);
 
 const getVector3Text = (v: Vector3) => `position: (${v.x.toFixed(1)}, ${v.y.toFixed(1)}, ${v.z.toFixed(1)})`;
 
-const options: { id: Primitive3D["type"], label: string }[] = [
+const options: { id: PrimitiveType, label: string }[] = [
   { id: "box", label: "Box" },
   { id: "pyramid", label: "Pyramid" },
 ]
 
 type Form = {
-  type: Primitive3D["type"],
+  type: PrimitiveType,
   length: number,
   width: number,
   height: number,
@@ -38,6 +39,8 @@ type Form = {
 export const App = () => {
   const [primitives, setPrimitives] = useState(mockData);
   const [addGroupDialog, setAddGroupDialog] = useState(false);
+  const [wireframe, setWireFrame] = useState(false);
+
   const { control, handleSubmit } = useForm<Form>({
     defaultValues: {
       type: "box",
@@ -62,7 +65,6 @@ export const App = () => {
   const openDialog = () => setAddGroupDialog(true);
   const closeDialog = () => setAddGroupDialog(false);
 
-
   return (
     <Stack direction="row" height={"100%"}>
       <Stack minWidth={300}>
@@ -81,12 +83,16 @@ export const App = () => {
           <Button onClick={openDialog}>Add group</Button>
         </Stack>
       </Stack>
-      <Canvas>
+      <Stack>
+        <IconButton onClick={() => setWireFrame(prev => !prev)} color={wireframe ? "primary" : "default"} sx={{ position: "relative" }}><CropFree /></IconButton>
+      </Stack>
+      <Canvas >
         <ambientLight intensity={0.1} />
         <directionalLight color="white" position={DIRECTION_LIGHT_POS} />
         {primitives.map((item, i) => (
-          <Primitive key={i} item={item} />
+          <Primitive key={i} item={item} wireframe={wireframe} />
         ))}
+        <OrbitControls/>
       </Canvas>
       <Dialog
         open={addGroupDialog}

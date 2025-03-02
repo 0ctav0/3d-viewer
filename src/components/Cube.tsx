@@ -1,19 +1,19 @@
 import { useEffect, useRef } from "react";
-import { BufferAttribute, BufferGeometry } from "three";
-import { Primitive3D } from "./Primitive";
+import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
+import { PrimitiveParams } from "./Primitive";
 
 const vertices = new Float32Array([
   // front edge
-  -1, -1, 1,
-  1, -1, 1,
-  1, 1, 1,
-  -1, 1, 1,
+  -1, -1, 1,  // 0 left bottom
+  1, -1, 1,   // 1 right bottom
+  1, 1, 1,    // 2 right top
+  -1, 1, 1,   // 3 left top
 
   // back edge
-  -1, -1, -1,
-  1, -1, -1,
-  1, 1, -1,
-  -1, 1, -1,
+  -1, -1, -1,   // 4 left bottom
+  1, -1, -1,    // 5 right bottom
+  1, 1, -1,     // 6 right top
+  -1, 1, -1,    // 7 left top
 ]);
 
 const indices = [
@@ -70,7 +70,7 @@ const normals = new Float32Array([
   -1, 0, 0,
 ]);
 
-export const Cube = ({ item: { color, position, size } }: { item: Primitive3D }) => {
+export const Cube = ({ item: { color, position, size }, wireframe }: PrimitiveParams) => {
   const ref = useRef<BufferGeometry>(null);
 
   useEffect(() => {
@@ -83,6 +83,6 @@ export const Cube = ({ item: { color, position, size } }: { item: Primitive3D })
   return <mesh position={position} scale={size.divideScalar(2)}>
     {/* <boxGeometry/> */}
     <bufferGeometry ref={ref}/>
-    <meshStandardMaterial color={color} />
+    <meshStandardMaterial side={DoubleSide} color={color} wireframe={wireframe} />
   </mesh>
 }
