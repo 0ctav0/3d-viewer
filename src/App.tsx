@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
 import './App.css'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
 import { ChangeHistory, CropFree, Square } from '@mui/icons-material'
 import { Vector3 } from 'three'
 import { useForm } from 'react-hook-form'
 import { AutocompleteElement, TextFieldElement } from 'react-hook-form-mui'
-import { COLORS, createMockPrimitives, Primitive, Primitive3D, PrimitiveType } from './components/Primitive'
+import { COLORS, createMockPrimitives, Primitive3D, PrimitiveType } from './components/Primitive'
 import { randomFromArr, randomPosition } from './utils/utils'
-import { OrbitControls } from '@react-three/drei'
+import { Viewer } from './components/Viewer'
+import { generateUUID } from 'three/src/math/MathUtils.js'
 
 const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   switch (type) {
@@ -17,7 +17,6 @@ const Icon = ({ item: { type, color } }: { item: Primitive3D }) => {
   }
 }
 
-const DIRECTION_LIGHT_POS: [number, number, number] = [10, 100, 10];
 
 const mockData = createMockPrimitives(10);
 
@@ -40,6 +39,8 @@ export const App = () => {
   const [primitives, setPrimitives] = useState(mockData);
   const [addGroupDialog, setAddGroupDialog] = useState(false);
   const [wireframe, setWireFrame] = useState(false);
+  const hover = useState<string|null>(null);
+  const selected = useState<string|null>(null);
 
   const { control, handleSubmit } = useForm<Form>({
     defaultValues: {
@@ -58,7 +59,7 @@ export const App = () => {
   const addGroup = (v: Form) => {
     console.log(v);
     const newElements: Primitive3D[] = Array(v.number).fill(0).map((_, i) =>
-      ({ type: v.type.id, name: `${v.type.id} ${i + 1}`, color: randomFromArr(COLORS), position: randomPosition(), size: new Vector3(v.width, v.height, v.length) }));
+      ({ id: generateUUID(), type: v.type.id, name: `${v.type.id} ${i + 1}`, color: randomFromArr(COLORS), position: randomPosition(), size: new Vector3(v.width, v.height, v.length) }));
     setPrimitives((prev) => [...prev, ...newElements]);
     closeDialog();
   }
@@ -66,13 +67,15 @@ export const App = () => {
   const openDialog = () => setAddGroupDialog(true);
   const closeDialog = () => setAddGroupDialog(false);
 
+  console.log("APP")
+
   return (
     <Stack direction="row" height={"100%"}>
       <Stack minWidth={300}>
         <List sx={{ overflow: "auto" }}>
-          {primitives.map((item, i) => (
-            <ListItem key={i}>
-              <ListItemButton>
+          {primitives.map((item) => (
+            <ListItem key={item.id} >
+              <ListItemButton selected={item.id === hover[0] || item.id === selected[0]}>
                 <ListItemText primary={item.name} secondary={getVector3Text(item.position)} />
                 <ListItemIcon><Icon item={item} /></ListItemIcon>
               </ListItemButton>
@@ -87,14 +90,7 @@ export const App = () => {
       <Stack>
         <IconButton onClick={() => setWireFrame(prev => !prev)} color={wireframe ? "primary" : "default"} sx={{ position: "relative" }}><CropFree /></IconButton>
       </Stack>
-      <Canvas >
-        <ambientLight intensity={0.1} />
-        <directionalLight color="white" position={DIRECTION_LIGHT_POS} />
-        {primitives.map((item, i) => (
-          <Primitive key={i} item={item} wireframe={wireframe} />
-        ))}
-        <OrbitControls/>
-      </Canvas>
+      <Viewer primitives={primitives} wireframe={wireframe} hover={hover} selected={selected} />
       <Dialog
         open={addGroupDialog}
         onClose={closeDialog}

@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
-import { PrimitiveParams } from "./Primitive";
+import { PrimitiveProps } from "./Primitive";
 import { useEffect, useRef } from "react";
 
 const PYRAMID_HEIGHT = 1;
@@ -40,7 +40,7 @@ const normals = new Float32Array([
     0,1,0,
 ])
 
-export const Pyramid = ({ item: { color, position, size }, wireframe }: PrimitiveParams) => {
+export const Pyramid = ({ item: { color, position, size }, wireframe }: PrimitiveProps) => {
     const ref = useRef<BufferGeometry>(null);
 
     useEffect(() => {
@@ -49,6 +49,8 @@ export const Pyramid = ({ item: { color, position, size }, wireframe }: Primitiv
         ref?.current?.setIndex(new BufferAttribute(indices,1));
         // ref?.current?.computeVertexNormals();
     }, []);
+
+    console.log("Pyramid")
 
     return <mesh position={position} scale={size.divideScalar(2)}>
         <bufferGeometry ref={ref} />

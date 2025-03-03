@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
-import { PrimitiveParams } from "./Primitive";
+import { PrimitiveProps } from "./Primitive";
 
 const vertices = new Float32Array([
   // front edge
@@ -70,7 +70,7 @@ const normals = new Float32Array([
   -1, 0, 0,
 ]);
 
-export const Cube = ({ item: { color, position, size }, wireframe }: PrimitiveParams) => {
+export const Cube = ({ item: { color, position, size }, wireframe }: PrimitiveProps) => {
   const ref = useRef<BufferGeometry>(null);
 
   useEffect(() => {
@@ -79,6 +79,8 @@ export const Cube = ({ item: { color, position, size }, wireframe }: PrimitivePa
     // ref?.current?.setAttribute("normal", new BufferAttribute(normals, 3));
     ref?.current?.computeVertexNormals();
   }, []);
+
+  console.log("Cube")
 
   return <mesh position={position} scale={size.divideScalar(2)}>
     {/* <boxGeometry/> */}
