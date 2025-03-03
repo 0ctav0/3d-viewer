@@ -75,7 +75,7 @@ export const App = () => {
         <List sx={{ overflow: "auto" }}>
           {primitives.map((item) => (
             <ListItem key={item.id} >
-              <ListItemButton selected={item.id === hover[0] || item.id === selected[0]}>
+              <ListItemButton onClick={() => selected[1](item.id === selected[0] ? null: item.id)} onPointerOver={() => hover[1](item.id)} selected={item.id === hover[0] || item.id === selected[0]}>
                 <ListItemText primary={item.name} secondary={getVector3Text(item.position)} />
                 <ListItemIcon><Icon item={item} /></ListItemIcon>
               </ListItemButton>
